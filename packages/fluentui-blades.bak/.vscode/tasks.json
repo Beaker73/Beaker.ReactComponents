@@ -4,16 +4,13 @@
 		{
 			"type": "npm",
 			"script": "build",
-			"problemMatcher": [
-				"$tsc-watch"
-			],
+			"problemMatcher": [],
+			"label": "npm: build",
 			"group": {
 				"kind": "build",
 				"isDefault": true
 			},
-			"label": "npm: build",
-			"detail": "react-scripts build",
-			"isBackground": true
+			"detail": "react-scripts build"
 		}
 	]
 }
