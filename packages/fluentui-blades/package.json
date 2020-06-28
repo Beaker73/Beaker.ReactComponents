@@ -1,58 +1,61 @@
 {
-  "name": "@beaker73/fluentui-blades",
-  "version": "0.1.0",
-  "private": false,
-  "license": "MIT",
-  "module": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Beaker73/Beaker.ReactComponents.git"
-  },
-  "peerDependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
-  },
-  "devDependencies": {
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
-    "@types/jest": "^24.9.1",
-    "@types/node": "^12.12.47",
-    "@types/react": "^16.9.41",
-    "@types/react-dom": "^16.9.8",
-    "@babel/cli": "^7.0.0",
-    "babel-preset-react-app": "^9.1.2",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1",
-    "typescript": "^3.9.5"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "npm run build:lib && npm run build:type",
-    "build:app": "react-scripts build",
-    "build:lib": "rm -rf dist && NODE_ENV=production babel src/lib --extensions .ts,.tsx,.d.ts --out-dir dist",
-    "build:type": "tsc --project tsconfig.types.json",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  }
+	"name": "@beaker73/fluentui-blades",
+	"version": "0.1.0",
+	"private": false,
+	"license": "MIT",
+	"module": "dist/index.js",
+	"typings": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Beaker73/Beaker.ReactComponents.git"
+	},
+	"peerDependencies": {
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1"
+	},
+	"devDependencies": {
+		"@testing-library/jest-dom": "^4.2.4",
+		"@testing-library/react": "^9.5.0",
+		"@testing-library/user-event": "^7.2.1",
+		"@types/jest": "^24.9.1",
+		"@types/node": "^12.12.47",
+		"@types/react": "^16.9.41",
+		"@types/react-dom": "^16.9.8",
+		"@babel/cli": "^7.0.0",
+		"babel-preset-react-app": "^9.1.2",
+		"react": "^16.13.1",
+		"react-dom": "^16.13.1",
+		"react-scripts": "3.4.1",
+		"typescript": "^3.9.5"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "npm run build:lib && npm run build:type",
+		"build:app": "react-scripts build",
+		"build:lib": "rm -rf dist && NODE_ENV=production babel src/lib --extensions .ts,.tsx,.d.ts --out-dir dist",
+		"build:type": "tsc --project tsconfig.types.json",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": "react-app"
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"dependencies": {
+		"@fluentui/react": "^7.121.4"
+	}
 }
