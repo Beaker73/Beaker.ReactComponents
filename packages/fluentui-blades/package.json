@@ -1,6 +1,6 @@
 {
 	"name": "@beaker73/fluentui-blades",
-	"version": "0.1.0",
+	"version": "0.1.2",
 	"private": false,
 	"license": "MIT",
 	"module": "dist/index.js",
@@ -14,7 +14,8 @@
 	},
 	"peerDependencies": {
 		"react": "^16.13.1",
-		"react-dom": "^16.13.1"
+		"react-dom": "^16.13.1",
+		"@fluentui/react": "^7.121.4"
 	},
 	"devDependencies": {
 		"@testing-library/jest-dom": "^4.2.4",
@@ -54,8 +55,5 @@
 			"last 1 firefox version",
 			"last 1 safari version"
 		]
-	},
-	"dependencies": {
-		"@fluentui/react": "^7.121.4"
 	}
 }
