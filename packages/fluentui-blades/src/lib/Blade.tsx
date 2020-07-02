@@ -1,7 +1,7 @@
 import React, { useContext, useMemo } from "react";
-import { FocusZone, Stack, Text, getTheme, mergeStyleSets, mergeStyles, AnimationStyles, CommandBar, ICommandBarProps, ICommandBarItemProps, ContextualMenuItemType, IContextualMenuItem } from "@fluentui/react";
+import { FocusZone, Stack, Text, getTheme, mergeStyleSets, CommandBar, ICommandBarItemProps, ContextualMenuItemType, IContextualMenuItem } from "@fluentui/react";
 
-import { bladeContext } from "./BladeContext";
+import { bladeContext, bladeHostContext } from "./BladeContext";
 
 export interface BladeProps {
 	size?: number;
@@ -12,7 +12,9 @@ export interface BladeProps {
 
 export function Blade(props: React.PropsWithChildren<BladeProps>): JSX.Element {
 
+	const hostContext = useContext(bladeHostContext);
 	const context = useContext(bladeContext);
+
 	const bladeId = context.bladeId!;
 	const theme = getTheme();
 	const style = useMemo(useStyle, [theme, bladeId]);
@@ -23,7 +25,7 @@ export function Blade(props: React.PropsWithChildren<BladeProps>): JSX.Element {
 		items.push({ key: "title", onRender: renderTitle, itemType: ContextualMenuItemType.Header, props });
 
 	const farItems: ICommandBarItemProps[] = props.buttons ? [...props?.buttons] : [];
-	if (bladeId > 0)
+	if (bladeId >= 0)
 		farItems.push({ key: "close", iconOnly: true, onClick: closeBlade, iconProps: { iconName: "ChromeClose" } });
 	const menuItems: ICommandBarItemProps[] = props.menuItems ? [...props?.menuItems] : [];
 
@@ -48,8 +50,8 @@ export function Blade(props: React.PropsWithChildren<BladeProps>): JSX.Element {
 	}
 
 	function closeBlade(): void {
-		if (context.closeBlade !== void 0 && context.bladeId !== void 0) {
-			context.closeBlade(context.bladeId);
+		if (hostContext.closeBlade !== void 0 && context.bladeId !== void 0) {
+			hostContext.closeBlade(context.bladeId);
 		}
 	}
 

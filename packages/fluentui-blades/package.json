@@ -1,6 +1,6 @@
 {
 	"name": "@beaker73/fluentui-blades",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"private": false,
 	"license": "MIT",
 	"module": "dist/index.js",

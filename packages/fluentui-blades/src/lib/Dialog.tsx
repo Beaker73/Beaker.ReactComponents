@@ -20,11 +20,11 @@ export function Dialog(props: DialogProps): JSX.Element {
     };
     const modal: IModalProps = {
         overlay: {
-            
+
         }
     }
     const theme = getTheme();
-    const variantStyle: React.CSSProperties | undefined = 
+    const variantStyle: React.CSSProperties | undefined =
         useMemo(() => getVariantStyle(props.variant), [props.variant, theme]);
 
     const buttons = !props.buttons
@@ -49,23 +49,23 @@ export function Dialog(props: DialogProps): JSX.Element {
     </FluentDialog>
 
     function sendClose(): void {
-        if(props.onClose)
+        if (props.onClose)
             props.onClose();
     }
 
     function getVariantStyle(variant?: VariantName): React.CSSProperties | undefined {
-        switch(variant) {
+        switch (variant) {
             case "Warning":
                 return {
                     backgroundColor: theme.palette.orange,
                     borderColor: theme.palette.orange,
                 };
-            case "SevereWarning": 
-            return {
-                backgroundColor: theme.palette.red,
-                borderColor: theme.palette.red,
-            };
-    }
+            case "SevereWarning":
+                return {
+                    backgroundColor: theme.palette.red,
+                    borderColor: theme.palette.red,
+                };
+        }
 
         return undefined;
     }

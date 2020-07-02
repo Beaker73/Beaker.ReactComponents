@@ -1,19 +1,19 @@
 import React from "react";
-import { ICommandBarItemProps, IBaseButtonProps } from "@fluentui/react";
 
 import { BladeProps } from "./Blade";
 import { DefineBladeProps } from "./BladeHost";
 import { DialogProps } from "./Dialog";
 
-export interface BladeContext {
-	bladeId?: number;
-	bladeProps?: BladeProps;
+
+
+export interface BladeHostContext {
+	blades: DefineBladeProps[];
 	openBlade?(afterBladeId: number, blade: DefineBladeProps): void;
 	closeBlade?(bladeId: number): void;
-	showDialog?(bladeId: number, props: DialogProps): void;
+	showDialog?(props: DialogProps): void;
 }
 
-export const bladeContext = React.createContext<BladeContext>({});
+export const bladeHostContext = React.createContext<BladeHostContext>({ blades: [] });
 
 export type UseBladeResult = {
 	openBlade<P extends {} = {}>(bladeType: React.FunctionComponent<P>, props?: P): void;
@@ -22,34 +22,40 @@ export type UseBladeResult = {
 	showDialog(props: DialogProps): void;
 }
 
+
+
+export interface BladeContext {
+	bladeId: number;
+	bladeProps: BladeProps;
+}
+
+export const bladeContext = React.createContext<BladeContext>({ bladeId: -1, bladeProps: {} });
+
 export function useBlade(): UseBladeResult {
 
+	const hostContext = React.useContext(bladeHostContext);
 	const context = React.useContext(bladeContext);
 
 	return {
 		openBlade: (bladeType: React.FunctionComponent<{}>, bladeProps) => {
-			if (context.openBlade !== void 0 && context.bladeId !== void 0) {
-				context.openBlade(context.bladeId, { bladeType, bladeProps: bladeProps ?? {} });
+			if (hostContext.openBlade !== void 0 && context.bladeId !== void 0) {
+				hostContext.openBlade(context.bladeId, { bladeType, bladeProps: bladeProps ?? {} });
 			}
 		},
 		replaceBlade: (bladeType: React.FunctionComponent<{}>, bladeProps) => {
-			if (context.openBlade !== void 0 && context.bladeId !== void 0) {
-				context.openBlade(context.bladeId - 1, { bladeType, bladeProps: bladeProps ?? {} });
+			if (hostContext.openBlade !== void 0 && context.bladeId !== void 0) {
+				hostContext.openBlade(context.bladeId - 1, { bladeType, bladeProps: bladeProps ?? {} });
 			}
 		},
 		closeBlade: () => {
-			if (context.closeBlade !== void 0 && context.bladeId !== void 0) {
-				context.closeBlade(context.bladeId);
+			if (hostContext.closeBlade !== void 0 && context.bladeId !== void 0) {
+				hostContext.closeBlade(context.bladeId);
 			}
 		},
 		showDialog: (props: DialogProps) => {
-			if (context.showDialog !== void 0 && context.bladeId !== void 0) {
-				context.showDialog(context.bladeId, props)
+			if (hostContext.showDialog !== void 0) {
+				hostContext.showDialog(props)
 			}
 		}
 	};
-}
-
-export function useBladeButton(props: ICommandBarItemProps): void {
-
 }
