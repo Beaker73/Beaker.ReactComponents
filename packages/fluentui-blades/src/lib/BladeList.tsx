@@ -1,13 +1,34 @@
-import React, { useMemo, Ref, useRef, Children, useEffect, useState } from "react";
-import { Stack, getTheme, mergeStyleSets, getParent, mergeStyles, AnimationStyles } from "@fluentui/react";
+import React, { useMemo, useRef, Children, useEffect, useState, PropsWithChildren } from "react";
+import { Stack, getTheme, mergeStyleSets, mergeStyles, AnimationStyles } from "@fluentui/react";
+import { bladeHostContext, bladeContext } from "./BladeContext";
+import { DefineBladeProps } from "./BladeHost";
 
 export interface BladeListProps extends React.HTMLAttributes<HTMLDivElement> {
+}
+
+export function BladeList(props: PropsWithChildren<{}>): JSX.Element {
+
+    const context = React.useContext(bladeHostContext);
+
+    return <BladeListCore>
+        {props.children}
+        {renderBlades(context.blades)}
+    </BladeListCore>;
+
+    function renderBlades(blades: DefineBladeProps[]): JSX.Element[] {
+        return blades.map((blade, i) => {
+            const BladeType = blade.bladeType;
+            return <bladeContext.Provider value={{ bladeId: i, bladeProps: blade.bladeProps }}>
+                <BladeType key={blade.bladeType.name + ":" + JSON.stringify(blade.bladeProps)} {...blade.bladeProps} />
+            </bladeContext.Provider>
+        });
+    }
 }
 
 /**
 * a BladeList is the container that holds all the blades on screen
 */
-export function BladeList(props: React.PropsWithChildren<BladeListProps>): JSX.Element {
+function BladeListCore(props: React.PropsWithChildren<BladeListProps>): JSX.Element {
 
     // mobile view
     // 400 pixels is the default for a blade
@@ -22,7 +43,7 @@ export function BladeList(props: React.PropsWithChildren<BladeListProps>): JSX.E
         const gap = (!!width) && width >= 450;
         setScale(gap ? 100 : width / 4);
         setGap(gap);
-    }, [viewRef.current]);
+    }, []);
 
     // when number of children changes, scroll smoothly to end
     const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -33,14 +54,16 @@ export function BladeList(props: React.PropsWithChildren<BladeListProps>): JSX.E
 
     const theme = getTheme();
     const style = useMemo(useStyle, [theme, gap]);
+    const context = React.useContext(bladeHostContext);
 
-    return <div ref={viewRef} className={props.className}>
+    return <div ref={viewRef} className={`${style.container} ${props.className ?? ""}`}>
         <Stack horizontal tokens={{ childrenGap: gap ? theme.spacing.m : 0 }}
             className={[props.className, style.bladeList].join(" ")} style={{ scrollSnapType: gap ? "x proximity" : "x mandatory" }}>
+
             {Children.map(props.children, child => {
                 const bladeWidth = 4 * scale; // for now, hardcoded at 4
                 const sizeStyle = { width: bladeWidth, minWidth: bladeWidth, maxWidth: bladeWidth };
-                return <div className={style.blade} style={{...sizeStyle, scrollSnapAlign: gap ? "start" : "center"}}>
+                return <div className={style.blade} style={{ ...sizeStyle, scrollSnapAlign: gap ? "start" : "center" }}>
                     {child}
                 </div>;
             })}
@@ -55,12 +78,16 @@ export function BladeList(props: React.PropsWithChildren<BladeListProps>): JSX.E
 
     function useStyle() {
         return mergeStyleSets({
+            container: {
+                height: '100%',
+            },
             bladeList: {
                 boxSizing: "border-box",
                 overflowY: "hidden",
                 overflowX: "scroll",
-				padding: gap ? theme.spacing.m : 0,
-				scrollBehavior: "smooth",
+                padding: gap ? theme.spacing.m : 0,
+                scrollBehavior: "smooth",
+                height: '100%',
             },
             blade: mergeStyles(
                 {
