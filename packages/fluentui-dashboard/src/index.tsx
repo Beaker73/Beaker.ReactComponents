@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { initializeIcons } from '@fluentui/react';
 
-import "./style.css";
+import "./Style.css";
 
 import { Example } from './Example';
 
