@@ -39,7 +39,8 @@
 		"build:lib": "rm -rf dist && NODE_ENV=production babel src/lib --extensions .ts,.tsx,.d.ts --out-dir dist",
 		"build:type": "tsc --project tsconfig.types.json",
 		"test": "react-scripts test",
-		"eject": "react-scripts eject"
+		"eject": "react-scripts eject",
+		"publish": "npm run build && npm publish --access public"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
