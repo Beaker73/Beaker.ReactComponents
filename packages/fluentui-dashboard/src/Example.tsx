@@ -16,13 +16,13 @@ export function Example() {
 	]
 
 	return <Stack verticalFill>
-		<Stack.Item shrink={1} grow={0}>
-			<CommandBar items={[]} farItems={farItems} />
-		</Stack.Item>
-		<Stack.Item grow={1} shrink={0}>
-			<Dashboard verticalFill editting={isEditting} />
-		</Stack.Item>
-	</Stack>
+			<Stack.Item shrink={1} grow={0}>
+				<CommandBar items={[]} farItems={farItems} />
+			</Stack.Item>
+			<Stack.Item grow={1} shrink={0}>
+				<Dashboard verticalFill editting={isEditting} />
+			</Stack.Item>
+		</Stack>
 
 	function renderEdit(): JSX.Element {
 		return <Stack verticalFill verticalAlign="center">
