@@ -13,7 +13,7 @@ export interface DashboardProps {
 	 * if the dashboard is in editting mode 
 	 * @defaultvalue false
 	 */
-	isEditting?: boolean;
+	editting?: boolean;
 
 	/**
      * Defines whether the Dashboard should take up 100% of the height of its parent.
@@ -27,7 +27,7 @@ export function Dashboard(props: DashboardProps): JSX.Element {
 	const theme = getTheme();
 	const tint = theme.semanticColors.bodyDivider;
 	const size = props.tileSize ?? 142;
-	const style = useMemo(getStyle, [theme, props.isEditting, tint, size, props.verticalFill]);
+	const style = useMemo(getStyle, [theme, props.editting, tint, size, props.verticalFill]);
 
 	return <div className={style.dashboard}>ToDo</div>
 
@@ -35,7 +35,7 @@ export function Dashboard(props: DashboardProps): JSX.Element {
 		return mergeStyleSets({
 			dashboard: {
 				height: props.verticalFill ? '100%' : undefined,
-				backgroundImage: props.isEditting ? `
+				backgroundImage: props.editting ? `
 					repeating-linear-gradient(${tint} 0 1px, transparent 1px 100%), 
 					repeating-linear-gradient(90deg, ${tint} 0 1px, transparent 1px 100%)
 				` : "transparent",
