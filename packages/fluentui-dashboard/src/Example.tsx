@@ -18,6 +18,10 @@ export function Example() {
 		{ key: "edit", name: "edit", onRender: renderEdit }
 	]
 
+	const [normal, setNormal] = useState<DashboardTileProps>({ left: 0, top: 0, name: "Default Size" });
+	const [big, setBig] = useState<DashboardTileProps>({ left: 0, top: 2, width: 3, height: 3, name: "Big One" });
+	const [small, setSmall] = useState<DashboardTileProps>({ left: 2, top: 0, width: 1, height: 1, name: "Small One" });
+
 	return <DndProvider backend={HTML5Backend}>
 		<Stack verticalFill>
 			<Stack.Item shrink={1} grow={0}>
@@ -25,13 +29,19 @@ export function Example() {
 			</Stack.Item>
 			<Stack.Item grow={1} shrink={0}>
 				<Dashboard verticalFill editting={isEditting}>
-					<Dashboard.Tile left={0} top={0} width={2} height={2}>
+					<Dashboard.Tile {...normal} onPositionChanged={pos => setNormal(n => ({ ...n, ...pos }))}>
 						<ExampleTile />
+					</Dashboard.Tile>
+					<Dashboard.Tile {...big} onPositionChanged={pos => setBig(n => ({ ...n, ...pos }))}>
+						<ExampleTile />
+					</Dashboard.Tile>
+					<Dashboard.Tile {...small} onPositionChanged={pos => setSmall(n => ({ ...n, ...pos }))}>
+						Foobar
 					</Dashboard.Tile>
 				</Dashboard>
 			</Stack.Item>
 		</Stack>
-	</DndProvider>
+	</DndProvider >
 
 	function renderEdit(): JSX.Element {
 		return <Stack verticalFill verticalAlign="center">

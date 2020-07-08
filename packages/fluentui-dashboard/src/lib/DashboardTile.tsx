@@ -4,6 +4,7 @@ import { getEmptyImage } from "react-dnd-html5-backend";
 import { Text, getTheme, mergeStyleSets } from "@fluentui/react";
 
 import { DashboardTileCoreProps } from "./DashboardTileProps";
+import { DragItem } from "./DragItem";
 
 export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>): JSX.Element {
 
@@ -12,7 +13,8 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 	const [dragProps, dragSource, dragView] = useDrag({
 		item: {
 			type: "tile",
-		},
+			props: props.metaProps,
+		} as DragItem,
 		canDrag: isEditting,
 		collect: monitor => ({
 			isDragging: monitor.isDragging(),
@@ -29,7 +31,7 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 	return <>
 		<div className={style.tile}>
 			<div ref={dragSource} className={style.header}>
-				<Text variant="large" as="h2">{props.name ?? 'Untitled'}</Text>
+				<Text variant="large" as="h2">{props.metaProps?.name ?? 'Untitled'}</Text>
 			</div>
 		</div>
 	</>;
@@ -43,7 +45,6 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 				boxShadow: theme.effects.elevation4,
 				height: "100%",
 				opacity: dragProps.isDragging ? 0.5 : 1,
-				zIndex: 500,
 			},
 			header: {
 				boxSizing: "border-box",

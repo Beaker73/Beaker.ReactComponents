@@ -1,7 +1,9 @@
 import React, { CSSProperties } from "react";
 import { useDragLayer, XYCoord } from "react-dnd";
-import { DashboardTile } from "./DashboardTile";
 import { getTheme, mergeStyles, mergeStyleSets } from "@fluentui/react";
+
+import { DragItem } from "./DragItem";
+import { DashboardTile } from "./DashboardTile";
 
 export interface CustomDragLayerProps {
 	gridSize: number,
@@ -10,12 +12,15 @@ export interface CustomDragLayerProps {
 export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | null {
 
 	const { itemType, isDragging, item, initialOffset, currentOffset } = useDragLayer(monitor => ({
-		item: monitor.getItem(),
+		item: monitor.getItem() as DragItem,
 		itemType: monitor.getItemType(),
 		initialOffset: monitor.getInitialSourceClientOffset(),
 		currentOffset: monitor.getSourceClientOffset(),
 		isDragging: monitor.isDragging()
 	}));
+
+	const tileWidth = itemType === "tile" && item && item.props ? item.props.width ?? 2 : 2;
+	const tileHeight = itemType === "tile" && item && item.props ? item.props.height ?? 2 : 2;
 
 	if (!isDragging)
 		return null;
@@ -52,8 +57,8 @@ export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | n
 			position: "absolute",
 			left: x,
 			top: y,
-			width: props.gridSize * 2 - s * 2,
-			height: props.gridSize * 2 - s * 2,
+			width: props.gridSize * tileWidth - s * 2,
+			height: props.gridSize * tileHeight - s * 2,
 			boxShadow: theme.effects.elevation64,
 			border: `solid 1px ${theme.semanticColors.bodyFrameDivider}`,
 			background: theme.semanticColors.bodyFrameBackground,
