@@ -1,11 +1,11 @@
-import React, { useMemo, PropsWithChildren, CSSProperties } from "react";
+import React, { useMemo, PropsWithChildren, CSSProperties, LegacyRef, useRef, Ref, MutableRefObject, useEffect, useState } from "react";
 import { mergeStyleSets, getTheme } from "@fluentui/react";
 
 import { DashboardDragLayer } from "./DashboardDragLayer";
 import { DashboardProps } from "./DashboardProps";
 import { DashboardTile } from "./DashboardTile";
 import { DashboardTileCoreProps, DashboardTileProps } from "./DashboardTileProps";
-import { useDrop } from "react-dnd";
+import { useDrop, XYCoord } from "react-dnd";
 import { DragItem } from "./DragItem";
 
 export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element {
@@ -15,6 +15,11 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 	const size = props.tileSize ?? 142;
 	const style = useMemo(getStyle, [theme, props.editting, tint, size, props.verticalFill]);
 	const isEditting = props?.editting ?? false;
+
+	// client offset of dashboard, needed for correct rendering by drag layer
+	const dashRef = useRef<HTMLDivElement>(null);
+	const rect = dashRef?.current?.getBoundingClientRect();
+	const clientOffset = {x: rect?.left ?? 0, y: rect?.top ?? 0};
 
 	const [dropProps, dropRef] = useDrop({
 		accept: "tile",
@@ -26,17 +31,17 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 			const delta = monitor.getDifferenceFromInitialOffset()!;
 			const source = monitor.getInitialSourceClientOffset()!;
 
-			let left = Math.round(source.x + delta.x);
-			let top = Math.round(source.y + delta.y);
+			let left = Math.round(source.x + delta.x - clientOffset.x);
+			let top = Math.round(source.y + delta.y - clientOffset.y);
 			[left, top] = snapToGrid(left, top);
 
-			if(item.props.onPositionChanged)
-				item.props.onPositionChanged({left, top});
+			if (item.props.onPositionChanged)
+				item.props.onPositionChanged({ left, top });
 		},
 	});
 
-	return <div ref={dropRef} className={style.dashboard}>
-		<DashboardDragLayer gridSize={size} />
+	return <div ref={mergeRefs<HTMLDivElement>(dashRef, dropRef)} className={style.dashboard}>
+		<DashboardDragLayer gridSize={size} clientOffset={clientOffset} />
 		{React.Children.map(props.children, renderChild)}
 	</div>
 
@@ -97,4 +102,25 @@ function isReactElement(child: React.ReactNode): child is React.ReactElement {
 
 function DashboardTileMetadata(props: PropsWithChildren<DashboardTileProps>): JSX.Element {
 	return <>{props.children}</>;
+}
+
+// based on https://www.davedrinks.coffee/how-do-i-use-two-react-refs/
+function mergeRefs<T extends HTMLElement>(...refs: Ref<T>[]): Ref<T> {
+	const filteredRefs = refs.filter(Boolean);
+	if (!filteredRefs.length) return null;
+	if (filteredRefs.length === 0) return filteredRefs[0];
+
+	return inst => {
+		for (const ref of filteredRefs) {
+			if (typeof ref === 'function') {
+				ref(inst);
+			} else if (isMutableRef(ref) && !!inst) {
+				ref.current = inst;
+			}
+		}
+	};
+};
+
+function isMutableRef<T extends HTMLElement>(ref: Ref<T>): ref is MutableRefObject<T> {
+	return !!ref && typeof ref === "object" && "current" in ref;
 }

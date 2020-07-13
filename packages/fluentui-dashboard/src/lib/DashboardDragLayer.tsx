@@ -7,6 +7,7 @@ import { DashboardTile } from "./DashboardTile";
 
 export interface CustomDragLayerProps {
 	gridSize: number,
+	clientOffset: XYCoord,
 }
 
 export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | null {
@@ -14,8 +15,8 @@ export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | n
 	const { itemType, isDragging, item, initialOffset, currentOffset } = useDragLayer(monitor => ({
 		item: monitor.getItem() as DragItem,
 		itemType: monitor.getItemType(),
-		initialOffset: monitor.getInitialSourceClientOffset(),
-		currentOffset: monitor.getSourceClientOffset(),
+		initialOffset: sub(monitor.getInitialSourceClientOffset(), props.clientOffset),
+		currentOffset: sub(monitor.getSourceClientOffset(), props.clientOffset),
 		isDragging: monitor.isDragging()
 	}));
 
@@ -28,29 +29,19 @@ export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | n
 	const theme = getTheme();
 	const style = getStyle(initialOffset, currentOffset);
 
-	return renderItem();
+	return <div style={style}>
+	</div>
 
-	function renderItem() {
-		switch (itemType) {
-			case "tile":
-				return <div style={style}>
-				</div>
-			default:
-				return null;
-		}
-	}
+	function getStyle(initialOffset: XYCoord, currentOffset: XYCoord) {
+		let { x, y } = currentOffset;
 
-	function getStyle(initialOffset: XYCoord | null, currentOffset: XYCoord | null) {
-		let { x, y } = currentOffset ?? { x: 0, y: 0 };
-		const correction = 44; // for some reason initialOffset is below the drag source
-
-		initialOffset = initialOffset ?? { x: 0, y: correction };
+		initialOffset = initialOffset;
 
 		x -= initialOffset.x;
-		y -= initialOffset.y - correction;
+		y -= initialOffset.y;
 		[x, y] = snapToGrid(x, y)
 		x += initialOffset.x;
-		y += initialOffset.y - correction;
+		y += initialOffset.y;
 
 		const s = parseInt(theme.spacing.m) / 2;
 		return {
@@ -73,3 +64,11 @@ export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | n
 	}
 
 }  
+
+function sub(a: XYCoord | null, b: XYCoord): XYCoord {
+
+	return {
+		x: (a?.x ?? 0) - b.x,
+		y: (a?.y ?? 0) - b.y,
+	}
+}
