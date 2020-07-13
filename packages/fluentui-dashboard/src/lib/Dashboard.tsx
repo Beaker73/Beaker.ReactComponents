@@ -1,5 +1,5 @@
 import React, { useMemo, PropsWithChildren, CSSProperties, LegacyRef, useRef, Ref, MutableRefObject, useEffect, useState } from "react";
-import { mergeStyleSets, getTheme } from "@fluentui/react";
+import { mergeStyleSets, getTheme, Rectangle } from "@fluentui/react";
 
 import { DashboardDragLayer } from "./DashboardDragLayer";
 import { DashboardProps } from "./DashboardProps";
@@ -19,13 +19,38 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 	// client offset of dashboard, needed for correct rendering by drag layer
 	const dashRef = useRef<HTMLDivElement>(null);
 	const rect = dashRef?.current?.getBoundingClientRect();
-	const clientOffset = {x: rect?.left ?? 0, y: rect?.top ?? 0};
+	const clientOffset = { x: rect?.left ?? 0, y: rect?.top ?? 0 };
 
 	const [dropProps, dropRef] = useDrop({
 		accept: "tile",
 		canDrop: (item: DragItem, monitor) => {
-			// TODO, validate against other tiles
-			return true;
+
+			// compute current target
+			const delta = monitor.getDifferenceFromInitialOffset()!;
+			const source = monitor.getInitialSourceClientOffset()!;
+
+			let left = Math.round(source.x + delta.x - clientOffset.x);
+			let top = Math.round(source.y + delta.y - clientOffset.y);
+			[left, top] = snapToGrid(left, top);
+
+			// walk over all tiles to find any occupied
+			// if so, no drop allowed
+			const dragRect = new Rectangle(left, left + (item?.props?.width ?? 2) - 1, top, top + (item?.props?.height ?? 2) - 1);
+			var intersections = React.Children.map(props.children, child => {
+				let metaProps: DashboardTileProps = { left: 0, top: 0, width: 2, height: 2 };
+				if (isReactElement(child) && child.type === DashboardTileMetadata) {
+					if(child.props === item.props)
+						return false;
+					metaProps = Object.assign(metaProps, child.props);
+				}
+				console.log({ metaProps });
+				const targetRect = new Rectangle(metaProps.left, metaProps.left! + metaProps.width! - 1, metaProps.top, metaProps.top! + metaProps.height! - 1)
+				return intersects(dragRect, targetRect);
+			})
+			console.log({ intersections });
+
+			// all intersections must be false to be able to drop
+			return intersections?.every(i => i === false) ?? true;
 		},
 		drop: (item: DragItem, monitor) => {
 			const delta = monitor.getDifferenceFromInitialOffset()!;
@@ -123,4 +148,15 @@ function mergeRefs<T extends HTMLElement>(...refs: Ref<T>[]): Ref<T> {
 
 function isMutableRef<T extends HTMLElement>(ref: Ref<T>): ref is MutableRefObject<T> {
 	return !!ref && typeof ref === "object" && "current" in ref;
+}
+
+function intersects(r1: Rectangle, r2: Rectangle): boolean {
+
+	console.log({ r1, r2 });
+
+	if (r1.left > r2.right || r2.left > r1.right)
+		return false;
+	if (r1.top > r2.bottom || r2.top > r1.bottom)
+		return false;
+	return true;
 }

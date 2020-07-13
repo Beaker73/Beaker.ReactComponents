@@ -78,7 +78,7 @@ export function Example() {
 				width: 200,
 				boxShadow: theme.effects.elevation4,
 				height: '100%',
-				zIndex: 15,
+				zIndex: 9,
 			}
 		});
 	}

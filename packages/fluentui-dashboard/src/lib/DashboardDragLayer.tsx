@@ -12,12 +12,23 @@ export interface CustomDragLayerProps {
 
 export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | null {
 
-	const { itemType, isDragging, item, initialOffset, currentOffset } = useDragLayer(monitor => ({
+	const { itemType, isDragging, item, initialOffset, currentOffset, canDrop } = useDragLayer(monitor => ({
 		item: monitor.getItem() as DragItem,
 		itemType: monitor.getItemType(),
 		initialOffset: sub(monitor.getInitialSourceClientOffset(), props.clientOffset),
 		currentOffset: sub(monitor.getSourceClientOffset(), props.clientOffset),
-		isDragging: monitor.isDragging()
+		isDragging: monitor.isDragging(),
+		canDrop: (() => {
+			const targetIds = monitor.isDragging() ? (monitor as any).getTargetIds() : [];
+	  
+			for (let i = targetIds.length - 1; i >= 0; i--) {
+			  if ((monitor as any).isOverTarget(targetIds[i])) {
+				return (monitor as any).canDropOnTarget(targetIds[i])
+			  }
+			}
+	  
+			return false;
+		  })(),
 	}));
 
 	const tileWidth = itemType === "tile" && item && item.props ? item.props.width ?? 2 : 2;
@@ -52,8 +63,12 @@ export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | n
 			height: props.gridSize * tileHeight - s * 2,
 			boxShadow: theme.effects.elevation64,
 			border: `solid 1px ${theme.semanticColors.bodyFrameDivider}`,
-			background: theme.semanticColors.bodyFrameBackground,
+			background: canDrop ? theme.semanticColors.bodyFrameBackground : theme.palette.red,
 			borderRadius: theme.effects.roundedCorner2,
+			boxSizing: "border-box",
+			pointerEvents: "none",
+			opacity: canDrop ? 1 : 0.25,
+			zIndex: 250,
 		} as CSSProperties;
 	}
 
