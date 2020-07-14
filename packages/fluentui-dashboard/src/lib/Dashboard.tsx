@@ -43,12 +43,9 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 						return false;
 					metaProps = Object.assign(metaProps, child.props);
 				}
-				console.log({ metaProps });
 				const targetRect = new Rectangle(metaProps.left, metaProps.left! + metaProps.width! - 1, metaProps.top, metaProps.top! + metaProps.height! - 1)
 				return intersects(dragRect, targetRect);
 			})
-			console.log({ intersections });
-
 			// all intersections must be false to be able to drop
 			return intersections?.every(i => i === false) ?? true;
 		},
@@ -129,6 +126,7 @@ function isReactElement(child: React.ReactNode): child is React.ReactElement {
 }
 
 function DashboardTileMetadata(props: PropsWithChildren<DashboardTileProps>): JSX.Element {
+	console.log({children: props.children});
 	return <>{props.children}</>;
 }
 
@@ -154,9 +152,6 @@ function isMutableRef<T extends HTMLElement>(ref: Ref<T>): ref is MutableRefObje
 }
 
 function intersects(r1: Rectangle, r2: Rectangle): boolean {
-
-	console.log({ r1, r2 });
-
 	if (r1.left > r2.right || r2.left > r1.right)
 		return false;
 	if (r1.top > r2.bottom || r2.top > r1.bottom)

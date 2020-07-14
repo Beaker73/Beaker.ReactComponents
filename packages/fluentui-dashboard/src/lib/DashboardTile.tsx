@@ -1,7 +1,7 @@
 import React, { useMemo, PropsWithChildren, useEffect } from "react";
 import { useDrag, DragPreviewImage } from "react-dnd";
 import { getEmptyImage } from "react-dnd-html5-backend";
-import { Text, getTheme, mergeStyleSets } from "@fluentui/react";
+import { Text, getTheme, mergeStyleSets, Stack } from "@fluentui/react";
 
 import { DashboardTileCoreProps } from "./DashboardTileProps";
 import { DragItem } from "./DragItem";
@@ -21,6 +21,8 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 		}),
 	});
 
+	console.log({props});
+
 	useEffect(() => {
 		dragView(getEmptyImage(), { captureDraggingState: true });
 	});
@@ -33,6 +35,9 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 			<div ref={dragSource} className={style.header}>
 				<Text variant="large" as="h2">{props.metaProps?.name ?? 'Untitled'}</Text>
 			</div>
+			<Stack verticalFill className={style.body}>
+				{props.children}
+			</Stack>
 		</div>
 	</>;
 
@@ -51,7 +56,12 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 				height: 44, // also hardcoded in source of commandbar, we match it.
 				padding: theme.spacing.s1,
 				background: isEditting ? theme.semanticColors.bodyBackgroundHovered : undefined,
+				borderBottom: `solid 1px ${theme.semanticColors.bodyFrameDivider}`
 			},
+			body: {
+				boxSizing: "border-box",
+				padding: theme.spacing.s1,
+			}
 		});
 	}
 }

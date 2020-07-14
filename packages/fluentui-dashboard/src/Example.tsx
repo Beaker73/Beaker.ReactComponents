@@ -43,7 +43,7 @@ export function Example() {
 							</Dashboard.Tile>
 							<Dashboard.Tile {...small} onPositionChanged={pos => setSmall(n => ({ ...n, ...pos }))}>
 								Foobar
-						</Dashboard.Tile>
+							</Dashboard.Tile>
 						</Dashboard>
 					</Stack.Item>
 				</Stack>
