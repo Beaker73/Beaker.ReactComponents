@@ -84,12 +84,13 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 		const { left = 0, top = 0, width = 2, height = 2, } = metaProps;
 
 		const s = parseInt(theme.spacing.m) / 2;
+		const m = parseInt(theme.spacing.m);
 		const positionStyle: CSSProperties = {
 			position: "absolute",
-			left: left * size + s,
-			top: top * size + s,
-			width: size * width - s * 2,
-			height: size * height - s * 2,
+			left: left * size + m,
+			top: top * size + m,
+			width: size * width - m,
+			height: size * height - m,
 		};
 
 		return <div style={positionStyle}>
@@ -105,6 +106,7 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 	}
 
 	function getStyle() {
+		const s = parseInt(theme.spacing.m) / 2;
 		return mergeStyleSets({
 			dashboard: {
 				height: props.verticalFill ? '100%' : undefined,
@@ -113,6 +115,7 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 					repeating-linear-gradient(90deg, ${tint} 0 1px, transparent 1px 100%)
 				` : "transparent",
 				backgroundSize: `${size}px ${size}px`,
+				backgroundPosition: `${s}px ${s}px`,
 				position: "relative",
 			}
 		})
