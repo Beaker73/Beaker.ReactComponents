@@ -37,12 +37,9 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 			// if so, no drop allowed
 			const dragRect = new Rectangle(left, left + (item?.props?.width ?? 2) - 1, top, top + (item?.props?.height ?? 2) - 1);
 			var intersections = React.Children.map(props.children, child => {
-				let metaProps: DashboardTileProps = { left: 0, top: 0, width: 2, height: 2 };
-				if (isReactElement(child) && child.type === DashboardTileMetadata) {
-					if(child.props === item.props)
-						return false;
-					metaProps = Object.assign(metaProps, child.props);
-				}
+				const metaProps = getProps(child);
+				if (!metaProps)
+					return false;
 				const targetRect = new Rectangle(metaProps.left, metaProps.left! + metaProps.width! - 1, metaProps.top, metaProps.top! + metaProps.height! - 1)
 				return intersects(dragRect, targetRect);
 			})
@@ -57,12 +54,12 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 			let top = Math.round(source.y + delta.y - clientOffset.y);
 			[left, top] = snapToGrid(left, top);
 
-			if (item.props.onPositionChanged)
+			if (item.props?.onPositionChanged)
 				item.props.onPositionChanged({ left, top });
 		},
 	});
 
-	return <div ref={mergeRefs<HTMLDivElement>(dashRef, dropRef)} className={style.dashboard}>
+	return <div ref={mergeRefs<HTMLDivElement>(dashRef, dropRef)} className={`${props.className} ${style.dashboard}`}>
 		<DashboardDragLayer gridSize={size} clientOffset={clientOffset} />
 		{React.Children.map(props.children, renderChild)}
 	</div>
@@ -73,14 +70,22 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 		return [snappedX, snappedY];
 	}
 
+	function getProps(child: React.ReactNode, item?: DragItem): DashboardTileProps | null {
+		if (isReactElement(child) && child.type === DashboardTileMetadata) {
+			if (!!item && child.props === item.props)
+				return null;
+			return child.props;
+		}
+		return null;
+	}
+
 	function renderChild(child: React.ReactNode, index: number): JSX.Element {
 
-		let metaProps: DashboardTileProps = {};
-		if (isReactElement(child) && child.type === DashboardTileMetadata)
-			metaProps = child.props;
-		const { left = 0, top = 0, width = 2, height = 2, } = metaProps;
+		const metaProps = getProps(child);
+		if (!metaProps)
+			return <>Error</>;
 
-		const s = parseInt(theme.spacing.m) / 2;
+		const { left = 0, top = 0, width = 2, height = 2 } = metaProps;
 		const m = parseInt(theme.spacing.m);
 		const positionStyle: CSSProperties = {
 			position: "absolute",
@@ -95,8 +100,7 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 		</div>
 
 		function wrap(): JSX.Element {
-
-			return <DashboardTile isEditting={isEditting} metaProps={metaProps}>
+			return <DashboardTile isEditting={isEditting} metaProps={metaProps!}>
 				{child}
 			</DashboardTile>
 		}
@@ -126,7 +130,7 @@ function isReactElement(child: React.ReactNode): child is React.ReactElement {
 }
 
 function DashboardTileMetadata(props: PropsWithChildren<DashboardTileProps>): JSX.Element {
-	console.log({children: props.children});
+	console.log({ children: props.children });
 	return <>{props.children}</>;
 }
 

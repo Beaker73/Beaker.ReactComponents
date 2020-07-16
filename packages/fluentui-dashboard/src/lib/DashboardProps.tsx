@@ -18,5 +18,10 @@ export interface DashboardProps {
      * Defines whether the Dashboard should take up 100% of the height of its parent.
      * @defaultvalue true
      */
-	verticalFill?: boolean;
+    verticalFill?: boolean;
+    
+    /**
+     * Class name for styling
+     */
+    className?: string;
 }

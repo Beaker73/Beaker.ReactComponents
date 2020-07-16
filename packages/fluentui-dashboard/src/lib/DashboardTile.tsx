@@ -21,8 +21,6 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 		}),
 	});
 
-	console.log({props});
-
 	useEffect(() => {
 		dragView(getEmptyImage(), { captureDraggingState: true });
 	});
