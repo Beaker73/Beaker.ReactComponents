@@ -11,6 +11,11 @@ export function DashboardTilePanel(props: DashboardTilePanelProps): JSX.Element 
 		onDismiss: props.onDismiss,
 		isBlocking: false,
 		headerText: "Dashboard Tiles",
+		layerProps: {
+			// https://github.com/microsoft/fluentui/issues/11599
+			// needed to enable dnd form panels
+			eventBubblingEnabled: true,
+		}
 	};
 
 	if (props.panelProps)

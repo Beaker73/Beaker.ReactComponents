@@ -1,14 +1,14 @@
 import React, { useMemo, CSSProperties } from "react";
 import { DashboardTileDefinitionProps } from "./DashboardTileDefinitionProps";
 import { useDrag } from "react-dnd";
-import { DragItem } from "./DragItem";
+import { DragItem, dragItemTypeTile } from "./DragItem";
 import { getTheme, mergeStyleSets } from "@fluentui/react";
 
 export function DashboardTileDefinition(props: DashboardTileDefinitionProps): JSX.Element {
 
 	const [dragProps, dragSource, dragView] = useDrag({
 		item: {
-			type: "tile",
+			type: dragItemTypeTile,
 			definition: props,
 		} as DragItem,
 		canDrag: true,
@@ -25,7 +25,7 @@ export function DashboardTileDefinition(props: DashboardTileDefinitionProps): JS
 	};
 
 	return <div ref={dragSource} className={style.tile} style={styles}>
-		{props.title ?? props.key}
+		{(props.renderPreviewContent ? props.renderPreviewContent() : null) ?? props.title ?? props.key}
 	</div>;
 
 	function getStyle() {
@@ -40,6 +40,12 @@ export function DashboardTileDefinition(props: DashboardTileDefinitionProps): JS
 				opacity: dragProps.isDragging ? 0.5 : 1,
 				padding: theme.spacing.s1,
 				overflow: "hidden",
+				backgroundImage: `
+					repeating-linear-gradient(${theme.semanticColors.bodyFrameDivider} 0 1px, transparent 1px 100%), 
+					repeating-linear-gradient(90deg, ${theme.semanticColors.bodyFrameDivider} 0 1px, transparent 1px 100%)
+				`,
+				backgroundSize: `32px 32px`,
+				backgroundPosition: `-1px -1px`
 			},
 		});
 	}

@@ -2,7 +2,7 @@ import React, { CSSProperties } from "react";
 import { useDragLayer, XYCoord } from "react-dnd";
 import { getTheme, mergeStyles, mergeStyleSets } from "@fluentui/react";
 
-import { DragItem } from "./DragItem";
+import { DragItem, dragItemTypeTile, getTileSize } from "./DragItem";
 import { DashboardTile } from "./DashboardTile";
 
 export interface CustomDragLayerProps {
@@ -20,23 +20,20 @@ export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | n
 		isDragging: monitor.isDragging(),
 		canDrop: (() => {
 			const targetIds = monitor.isDragging() ? (monitor as any).getTargetIds() : [];
-	  
 			for (let i = targetIds.length - 1; i >= 0; i--) {
-			  if ((monitor as any).isOverTarget(targetIds[i])) {
-				return (monitor as any).canDropOnTarget(targetIds[i])
-			  }
+				if ((monitor as any).isOverTarget(targetIds[i])) {
+					return (monitor as any).canDropOnTarget(targetIds[i])
+				}
 			}
-	  
-			return false;
-		  })(),
-	}));
 
-	const tileWidth = itemType === "tile" && item && item.props ? item.props.width ?? 2 : 2;
-	const tileHeight = itemType === "tile" && item && item.props ? item.props.height ?? 2 : 2;
+			return false;
+		})(),
+	}));
 
 	if (!isDragging)
 		return null;
 
+	const [tileWidth, tileHeight] = getTileSize(item);
 	const theme = getTheme();
 	const style = getStyle(initialOffset, currentOffset);
 
@@ -78,7 +75,7 @@ export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | n
 		return [snappedX, snappedY]
 	}
 
-}  
+}
 
 function sub(a: XYCoord | null, b: XYCoord): XYCoord {
 

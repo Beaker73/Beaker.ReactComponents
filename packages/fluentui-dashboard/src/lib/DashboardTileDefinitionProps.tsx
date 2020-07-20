@@ -8,4 +8,8 @@ export interface DashboardTileDefinitionProps {
 	width?: number;
 	/** Height of the tile */
 	height?: number;
+	/** Set to render your own content */
+	renderContent?: (props?: unknown) => JSX.Element;
+	/** Set to render your own content */
+	renderPreviewContent?: () => JSX.Element;
 }

@@ -4,9 +4,9 @@ import { mergeStyleSets, getTheme, Rectangle } from "@fluentui/react";
 import { DashboardDragLayer } from "./DashboardDragLayer";
 import { DashboardProps } from "./DashboardProps";
 import { DashboardTile } from "./DashboardTile";
-import { DashboardTileCoreProps, DashboardTileProps } from "./DashboardTileProps";
+import { DashboardTileCoreProps, DashboardTileProps, getTileSizeFromProps } from "./DashboardTileProps";
 import { useDrop, XYCoord } from "react-dnd";
-import { DragItem } from "./DragItem";
+import { DragItem, dragItemTypeTile, getTileSize } from "./DragItem";
 
 export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element {
 
@@ -22,7 +22,7 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 	const clientOffset = { x: rect?.left ?? 0, y: rect?.top ?? 0 };
 
 	const [dropProps, dropRef] = useDrop({
-		accept: "tile",
+		accept: dragItemTypeTile,
 		canDrop: (item: DragItem, monitor) => {
 
 			// compute current target
@@ -35,14 +35,17 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 
 			// walk over all tiles to find any occupied
 			// if so, no drop allowed
-			const dragRect = new Rectangle(left, left + (item?.props?.width ?? 2) - 1, top, top + (item?.props?.height ?? 2) - 1);
+			const [w, h] = getTileSize(item);
+			const dragRect = new Rectangle(left, left + w, top, top + h);
+			console.log({ item, w, h, dragRect });
 			var intersections = React.Children.map(props.children, child => {
 				const metaProps = getProps(child);
-				if (!metaProps)
+				if (!metaProps || metaProps === item.props)
 					return false;
-				const targetRect = new Rectangle(metaProps.left, metaProps.left! + metaProps.width! - 1, metaProps.top, metaProps.top! + metaProps.height! - 1)
+				const targetRect = getTileSizeFromProps(metaProps);
 				return intersects(dragRect, targetRect);
-			})
+			});
+
 			// all intersections must be false to be able to drop
 			return intersections?.every(i => i === false) ?? true;
 		},
@@ -54,8 +57,17 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 			let top = Math.round(source.y + delta.y - clientOffset.y);
 			[left, top] = snapToGrid(left, top);
 
-			if (item.props?.onPositionChanged)
-				item.props.onPositionChanged({ left, top });
+			if (item.props) {
+				if (item.props.onPositionChanged)
+					item.props.onPositionChanged({ left, top });
+			} else {
+				if (props.onNewTileDropped)
+					props.onNewTileDropped({
+						definition: item.definition,
+						left, top,
+					});
+			}
+
 		},
 	});
 
@@ -85,14 +97,14 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 		if (!metaProps)
 			return <>Error</>;
 
-		const { left = 0, top = 0, width = 2, height = 2 } = metaProps;
+		const rect = getTileSizeFromProps(metaProps);
 		const m = parseInt(theme.spacing.m);
 		const positionStyle: CSSProperties = {
 			position: "absolute",
-			left: left * size + m,
-			top: top * size + m,
-			width: size * width - m,
-			height: size * height - m,
+			left: rect.left * size + m,
+			top: rect.top * size + m,
+			width: size * rect.width - m,
+			height: size * rect.height - m,
 		};
 
 		return <div style={positionStyle}>
@@ -129,9 +141,11 @@ function isReactElement(child: React.ReactNode): child is React.ReactElement {
 	return !!child && typeof child === "object" && "props" in child && "type" in child;
 }
 
-function DashboardTileMetadata(props: PropsWithChildren<DashboardTileProps>): JSX.Element {
-	console.log({ children: props.children });
-	return <>{props.children}</>;
+function DashboardTileMetadata(tileProps: PropsWithChildren<DashboardTileProps>): JSX.Element {
+	if (tileProps.definition.renderContent)
+		return tileProps.definition.renderContent(tileProps.props);
+
+	return <>{tileProps.children}</>;
 }
 
 // based on https://www.davedrinks.coffee/how-do-i-use-two-react-refs/
@@ -156,9 +170,9 @@ function isMutableRef<T extends HTMLElement>(ref: Ref<T>): ref is MutableRefObje
 }
 
 function intersects(r1: Rectangle, r2: Rectangle): boolean {
-	if (r1.left > r2.right || r2.left > r1.right)
+	if (r1.left >= r2.right || r2.left >= r1.right)
 		return false;
-	if (r1.top > r2.bottom || r2.top > r1.bottom)
+	if (r1.top >= r2.bottom || r2.top >= r1.bottom)
 		return false;
 	return true;
 }

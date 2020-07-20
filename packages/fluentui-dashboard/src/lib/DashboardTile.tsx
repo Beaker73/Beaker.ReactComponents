@@ -4,7 +4,7 @@ import { getEmptyImage } from "react-dnd-html5-backend";
 import { Text, getTheme, mergeStyleSets, Stack } from "@fluentui/react";
 
 import { DashboardTileCoreProps } from "./DashboardTileProps";
-import { DragItem } from "./DragItem";
+import { DragItem, dragItemTypeTile } from "./DragItem";
 
 export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>): JSX.Element {
 
@@ -12,15 +12,20 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 
 	const [dragProps, dragSource, dragView] = useDrag({
 		item: {
-			type: "tile",
+			type: dragItemTypeTile,
+			definition: props.metaProps.definition,
 			props: props.metaProps,
 		} as DragItem,
 		canDrag: isEditting,
-		collect: monitor => ({
-			isDragging: monitor.isDragging(),
-		}),
+		collect: monitor => {
+			return {
+				isDragging: monitor.isDragging(),
+			};
+		},
 	});
 
+	// hide default drag item
+	// ur drag layer will draw it
 	useEffect(() => {
 		dragView(getEmptyImage(), { captureDraggingState: true });
 	});

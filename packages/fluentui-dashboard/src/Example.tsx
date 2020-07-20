@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import * as uuid from "uuid";
 import { Stack, CommandBar, ICommandBarItemProps, Toggle, Label, getTheme, Nav, mergeStyleSets } from '@fluentui/react';
 
-import { Dashboard, DashboardTileProps, DashboardTilePanel, DashboardTileDefinitionProps } from "./lib";
-import { ExampleTile } from "./ExampleTile";
+import { Dashboard, DashboardTileProps, DashboardTilePanel, DashboardTileDefinitionProps, NewTileDropped } from "./lib";
 
 import "./Style.css";
+import { ExampleTile } from './ExampleTile';
 
 export function Example() {
 
@@ -19,19 +20,28 @@ export function Example() {
 		{ key: "edit", name: "edit", onRender: renderEdit }
 	]
 
-	const [state, setState] = useState<DashboardTileProps[]>([]);
-
 	const tileDefinitions: DashboardTileDefinitionProps[] = [
-		{ key: "small", title: "Small One", width: 1, height: 1 },
+		{
+			key: "small", title: "Small One", width: 1, height: 1,
+			renderPreviewContent: () => { return <span className={style.small}>S</span> },
+			renderContent: () => <ExampleTile />,
+		},
 		{ key: "default", title: "Default Size" },
 		{ key: "big", title: "Big One", width: 3, height: 3 },
 		{ key: "wide", title: "Wide One", width: 4, height: 1 },
 	];
 
-	const tiles = state.map(s => {
-		return <Dashboard.Tile {...s} onPositionChanged={pos => onPositionChanged(s, pos)}>
-			<ExampleTile />
-		</Dashboard.Tile>
+	const [tileStates, setTileStates] = useState<DashboardTileProps[]>(() => [
+		// init example tile
+		{
+			key: uuid.v4(),
+			definition: tileDefinitions.find(d => d.key === "default")!,
+			name: "Auto Default",
+		}
+	]);
+
+	const tiles = tileStates.map(tileState => {
+		return <Dashboard.Tile {...tileState} onPositionChanged={pos => onPositionChanged(tileState, pos)} />
 	})
 
 	return <DndProvider backend={HTML5Backend}>
@@ -45,7 +55,10 @@ export function Example() {
 						<Nav groups={[]}></Nav>
 					</Stack.Item>
 					<Stack.Item grow={1} shrink={0}>
-						<Dashboard verticalFill editting={isEditting} className={style.dashboard}>
+						<Dashboard verticalFill editting={isEditting} className={style.dashboard}
+							onNewTileDropped={onNewTileDropped}
+						>
+							{tiles}
 						</Dashboard>
 					</Stack.Item>
 				</Stack>
@@ -54,14 +67,24 @@ export function Example() {
 		<DashboardTilePanel tiles={tileDefinitions} isOpen={isEditting} onDismiss={() => setIsEditting(false)} />
 	</DndProvider >
 
-	function onPositionChanged(tile: DashboardTileProps, pos: {left: number, top: number} ) {
-		setState(oldState => {
+	function onPositionChanged(tile: DashboardTileProps, pos: { left: number, top: number }) {
+		setTileStates(oldState => {
+			// find index of item that changed
 			const ix = oldState.findIndex(i => i.key === tile.key);
-			if( ix === -1 )
+			if (ix === -1)
 				return oldState;
-			return [...([...oldState].splice(ix, 1)), {
-				...tile,
-				...pos,
+			// create clone and replace the item with a new
+			const clone = [...oldState];
+			clone.splice(ix, 1, { ...tile, ...pos });
+			return clone;
+		});
+	}
+
+	function onNewTileDropped(tileDrop: NewTileDropped): void {
+		setTileStates(state => {
+			return [...state, {
+				...tileDrop,
+				key: uuid.v4(),
 			}]
 		});
 	}
@@ -94,6 +117,9 @@ export function Example() {
 			dashboard: {
 				background: theme.semanticColors.bodyStandoutBackground,
 				//zIndex: -1,
+			},
+			small: {
+				...theme.fonts.xSmall
 			}
 		});
 	}

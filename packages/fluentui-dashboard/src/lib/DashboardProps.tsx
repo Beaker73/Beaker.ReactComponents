@@ -1,4 +1,5 @@
 import { DashboardTileProps } from "./DashboardTileProps";
+import { DashboardTileDefinitionProps } from "./DashboardTileDefinitionProps";
 
 export interface DashboardProps {
 
@@ -24,4 +25,19 @@ export interface DashboardProps {
      * Class name for styling
      */
     className?: string;
+
+    /**
+     * On new tile dropped
+     */
+    onNewTileDropped?(tileInfo: NewTileDropped): void;
+}
+
+/** Tile drop information */
+export interface NewTileDropped {
+    /** The defintion of the dropped tile */
+    definition: DashboardTileDefinitionProps;
+    /** The left drop position */
+    left: number;
+    /** The top drop position */
+    top: number;
 }
