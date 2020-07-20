@@ -41,7 +41,10 @@ export function Example() {
 	]);
 
 	const tiles = tileStates.map(tileState => {
-		return <Dashboard.Tile {...tileState} onPositionChanged={pos => onPositionChanged(tileState, pos)} />
+		return <Dashboard.Tile {...tileState} 
+			onPositionChanged={pos => onPositionChanged(tileState, pos)} 
+			onTileRemoved={() => onTileRemoved(tileState)}
+		/>
 	})
 
 	return <DndProvider backend={HTML5Backend}>
@@ -76,6 +79,19 @@ export function Example() {
 			// create clone and replace the item with a new
 			const clone = [...oldState];
 			clone.splice(ix, 1, { ...tile, ...pos });
+			return clone;
+		});
+	}
+
+	function onTileRemoved(tile: DashboardTileProps) {
+		setTileStates(oldState => {
+			// find index of item that changed
+			const ix = oldState.findIndex(i => i.key === tile.key);
+			if (ix === -1)
+				return oldState;
+			// create clone and remove tile from it
+			const clone = [...oldState];
+			clone.splice(ix, 1);
 			return clone;
 		});
 	}

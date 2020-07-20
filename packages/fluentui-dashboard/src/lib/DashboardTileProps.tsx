@@ -20,6 +20,8 @@ export interface DashboardTileProps {
 	height?: number;
 	/** position of tile changed */
 	onPositionChanged?: (pos: { left: number, top: number }) => void;
+	/** tile removal requested */
+	onTileRemoved?: () => void;
 }
 
 export interface DashboardTileCoreProps {

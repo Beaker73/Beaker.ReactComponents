@@ -1,7 +1,7 @@
 import React, { useMemo, PropsWithChildren, useEffect } from "react";
 import { useDrag, DragPreviewImage } from "react-dnd";
 import { getEmptyImage } from "react-dnd-html5-backend";
-import { Text, getTheme, mergeStyleSets, Stack } from "@fluentui/react";
+import { Text, getTheme, mergeStyleSets, Stack, CommandBar, ICommandBarProps, ICommandBarItemProps } from "@fluentui/react";
 
 import { DashboardTileCoreProps } from "./DashboardTileProps";
 import { DragItem, dragItemTypeTile } from "./DragItem";
@@ -33,16 +33,31 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 	const theme = getTheme();
 	const style = useMemo(getStyle, [theme, isEditting, dragProps.isDragging]);
 
+	const farItems: ICommandBarItemProps[] = [
+		{ key: "menu", iconOnly: true, iconProps: { iconName: "MoreVertical" } },
+		{ key: "close", iconOnly: true, iconProps: { iconName: "ChromeClose" }, 
+			onClick: () => { if (props.metaProps && props.metaProps.onTileRemoved) props.metaProps.onTileRemoved(); } }
+	]
+	const titleItem: ICommandBarItemProps[] = [
+		{ key: "title", onRender: renderTitle }
+	]
+
 	return <>
 		<div className={style.tile}>
 			<div ref={dragSource} className={style.header}>
-				<Text variant="large" as="h2">{props.metaProps?.name ?? 'Untitled'}</Text>
+				<CommandBar items={titleItem} farItems={isEditting ? farItems : []} styles={{ root: { padding: 0, background: isEditting ? "transparent" : void 0 } }} />
 			</div>
 			<Stack verticalFill className={style.body}>
 				{props.children}
 			</Stack>
 		</div>
 	</>;
+
+	function renderTitle() {
+		return <Stack verticalFill verticalAlign="center" className={style.headerText}>
+			<Text variant="large">{props.metaProps?.name ?? 'Untitled'}</Text>
+		</Stack>
+	}
 
 	function getStyle() {
 		return mergeStyleSets({
@@ -56,10 +71,17 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 			},
 			header: {
 				boxSizing: "border-box",
-				height: 44, // also hardcoded in source of commandbar, we match it.
-				padding: theme.spacing.s1,
-				background: isEditting ? theme.semanticColors.bodyBackgroundHovered : undefined,
-				borderBottom: `solid 1px ${theme.semanticColors.bodyFrameDivider}`
+				height: 45, // also hardcoded in source of commandbar, we match it.
+				// background: isEditting ? theme.semanticColors.bodyBackgroundHovered : undefined,
+				borderBottom: `solid 1px ${theme.semanticColors.bodyFrameDivider}`,
+
+				backgroundImage: `repeating-linear-gradient(${theme.semanticColors.bodyDivider} 0 1px, transparent 1px 100%)`,
+				backgroundSize: `5px 3px`,
+				backgroundPosition: `center center`,
+				backgroundRepeat: "space",
+			},
+			headerText: {
+				marginLeft: theme.spacing.m,
 			},
 			body: {
 				boxSizing: "border-box",
