@@ -37,7 +37,6 @@ export function Dashboard(props: PropsWithChildren<DashboardProps>): JSX.Element
 			// if so, no drop allowed
 			const [w, h] = getTileSize(item);
 			const dragRect = new Rectangle(left, left + w, top, top + h);
-			console.log({ item, w, h, dragRect });
 			var intersections = React.Children.map(props.children, child => {
 				const metaProps = getProps(child);
 				if (!metaProps || metaProps === item.props)
@@ -142,8 +141,9 @@ function isReactElement(child: React.ReactNode): child is React.ReactElement {
 }
 
 function DashboardTileMetadata(tileProps: PropsWithChildren<DashboardTileProps>): JSX.Element {
-	if (tileProps.definition.renderContent)
+	if (tileProps.definition.renderContent) {
 		return tileProps.definition.renderContent(tileProps.props);
+	}
 
 	return <>{tileProps.children}</>;
 }

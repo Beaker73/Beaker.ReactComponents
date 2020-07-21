@@ -1,15 +1,15 @@
 import { DashboardTileDefinitionProps } from "./DashboardTileDefinitionProps";
-import { Rectangle } from "@fluentui/react";
+import { Rectangle, IContextualMenuItem } from "@fluentui/react";
 
-export interface DashboardTileProps {
-	/** key of dashboard tile, unique per tile */
-	key: string;
+export interface DashboardTileProps<P extends {} = {}> {
+	/** id of dashboard tile, unique per tile */
+	id: string;
 	/** The defintion of the tile */
 	definition: DashboardTileDefinitionProps;
 	/** name on the tile */
 	name?: string;
 	/** Optional props for this tile specificly, past to the render call */
-	props?: unknown;
+	props?: P;
 	/** current left edge */
 	left?: number;
 	/** current top edge */
@@ -22,6 +22,8 @@ export interface DashboardTileProps {
 	onPositionChanged?: (pos: { left: number, top: number }) => void;
 	/** tile removal requested */
 	onTileRemoved?: () => void;
+	/** Optional menu items to show during edit mode on dropped tiles */
+	editMenuItems?: IContextualMenuItem[];
 }
 
 export interface DashboardTileCoreProps {

@@ -61,12 +61,13 @@ export function DashboardDragLayer(props: CustomDragLayerProps): JSX.Element | n
 			boxShadow: theme.effects.elevation64,
 			border: `solid 1px ${theme.semanticColors.bodyFrameDivider}`,
 			background: canDrop ? theme.semanticColors.bodyFrameBackground : theme.palette.red,
-			borderRadius: theme.effects.roundedCorner2,
+			borderRadius: theme.effects.roundedCorner4,
 			boxSizing: "border-box",
 			pointerEvents: "none",
 			opacity: canDrop ? 1 : 0.25,
 			zIndex: 250,
-		} as CSSProperties;
+			overflow: "hidden",
+	} as CSSProperties;
 	}
 
 	function snapToGrid(x: number, y: number): [number, number] {

@@ -2,9 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import * as uuid from "uuid";
-import { Stack, CommandBar, ICommandBarItemProps, Toggle, Label, getTheme, Nav, mergeStyleSets } from '@fluentui/react';
+import { Stack, CommandBar, ICommandBarItemProps, Toggle, Label, getTheme, Nav, mergeStyleSets, IContextualMenuItemProps, IContextualMenuItem } from '@fluentui/react';
 
 import { Dashboard, DashboardTileProps, DashboardTilePanel, DashboardTileDefinitionProps, NewTileDropped } from "./lib";
+import { InvertableTileProps, InvertableTile } from "./InvertableTile";
 
 import "./Style.css";
 import { ExampleTile } from './ExampleTile';
@@ -22,29 +23,57 @@ export function Example() {
 
 	const tileDefinitions: DashboardTileDefinitionProps[] = [
 		{
-			key: "small", title: "Small One", width: 1, height: 1,
+			name: "small", title: "Small One", width: 1, height: 1,
 			renderPreviewContent: () => { return <span className={style.small}>S</span> },
 			renderContent: () => <ExampleTile />,
 		},
-		{ key: "default", title: "Default Size" },
-		{ key: "big", title: "Big One", width: 3, height: 3 },
-		{ key: "wide", title: "Wide One", width: 4, height: 1 },
+		{ name: "default", title: "Default Size" },
+		{ name: "big", title: "Lorem Ipsum", width: 3, height: 3,
+			renderContent: (p: InvertableTileProps) => {
+				return <InvertableTile {...p} />;
+			}
+		},
+		{ name: "wide", title: "Wide One", width: 4, height: 1 },
 	];
 
 	const [tileStates, setTileStates] = useState<DashboardTileProps[]>(() => [
 		// init example tile
 		{
-			key: uuid.v4(),
-			definition: tileDefinitions.find(d => d.key === "default")!,
+			id: uuid.v4(),
+			definition: tileDefinitions.find(d => d.name === "default")!,
 			name: "Auto Default",
 		}
 	]);
 
 	const tiles = tileStates.map(tileState => {
-		return <Dashboard.Tile {...tileState} 
-			onPositionChanged={pos => onPositionChanged(tileState, pos)} 
+
+		const editMenuItems: IContextualMenuItem[] = [];
+
+		if (tileState.definition.name === "big") {
+			editMenuItems.push(
+				{ key: "invert", text: "Invert", onClick: () => onInvert() }
+			);
+		}
+
+		return <Dashboard.Tile {...tileState}
+			onPositionChanged={pos => onPositionChanged(tileState, pos)}
 			onTileRemoved={() => onTileRemoved(tileState)}
+			editMenuItems={editMenuItems}
 		/>
+
+		function onInvert() {
+			setTileStates(oldState => {
+				// find index of item that changed
+				const ix = oldState.findIndex(i => i.id === tileState.id);
+				if (ix === -1)
+					return oldState;
+				// create clone and replace the item with a new
+				const tile: DashboardTileProps<InvertableTileProps> = oldState[ix];
+				const clone = [...oldState];
+				clone.splice(ix, 1, { ...tile, props: { ...tile.props, isInverted: !(tile.props?.isInverted ?? false) } });
+				return clone;
+			})
+		}
 	})
 
 	return <DndProvider backend={HTML5Backend}>
@@ -73,7 +102,7 @@ export function Example() {
 	function onPositionChanged(tile: DashboardTileProps, pos: { left: number, top: number }) {
 		setTileStates(oldState => {
 			// find index of item that changed
-			const ix = oldState.findIndex(i => i.key === tile.key);
+			const ix = oldState.findIndex(i => i.id === tile.id);
 			if (ix === -1)
 				return oldState;
 			// create clone and replace the item with a new
@@ -86,7 +115,7 @@ export function Example() {
 	function onTileRemoved(tile: DashboardTileProps) {
 		setTileStates(oldState => {
 			// find index of item that changed
-			const ix = oldState.findIndex(i => i.key === tile.key);
+			const ix = oldState.findIndex(i => i.id === tile.id);
 			if (ix === -1)
 				return oldState;
 			// create clone and remove tile from it
@@ -100,7 +129,7 @@ export function Example() {
 		setTileStates(state => {
 			return [...state, {
 				...tileDrop,
-				key: uuid.v4(),
+				id: uuid.v4(),
 			}]
 		});
 	}

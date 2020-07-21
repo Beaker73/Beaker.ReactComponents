@@ -25,7 +25,7 @@ export function DashboardTileDefinition(props: DashboardTileDefinitionProps): JS
 	};
 
 	return <div ref={dragSource} className={style.tile} style={styles}>
-		{(props.renderPreviewContent ? props.renderPreviewContent() : null) ?? props.title ?? props.key}
+		{(props.renderPreviewContent ? props.renderPreviewContent() : null) ?? props.title ?? props.name}
 	</div>;
 
 	function getStyle() {

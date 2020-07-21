@@ -33,29 +33,41 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 	const theme = getTheme();
 	const style = useMemo(getStyle, [theme, isEditting, dragProps.isDragging]);
 
-	const farItems: ICommandBarItemProps[] = [
-		{ key: "menu", iconOnly: true, iconProps: { iconName: "MoreVertical" } },
-		{ key: "close", iconOnly: true, iconProps: { iconName: "ChromeClose" }, 
-			onClick: () => { if (props.metaProps && props.metaProps.onTileRemoved) props.metaProps.onTileRemoved(); } }
-	]
+	const farItems: ICommandBarItemProps[] = [];
+
+	if (props.isEditting) {
+		if (props.metaProps.editMenuItems && props.metaProps.editMenuItems.length > 0)
+			farItems.push({
+				key: "menu", iconOnly: true,
+				subMenuProps: props.metaProps.editMenuItems ? {
+					items: props.metaProps.editMenuItems,
+				} : void 0,
+			});
+		farItems.push({
+			key: "close", iconOnly: true, iconProps: { iconName: "ChromeClose" },
+			onClick: () => { if (props.metaProps && props.metaProps.onTileRemoved) props.metaProps.onTileRemoved(); }
+		});
+	}
 	const titleItem: ICommandBarItemProps[] = [
 		{ key: "title", onRender: renderTitle }
 	]
 
-	return <>
-		<div className={style.tile}>
+	return <Stack className={style.tile}>
+		<Stack.Item grow={0} shrink={0}>
 			<div ref={dragSource} className={style.header}>
-				<CommandBar items={titleItem} farItems={isEditting ? farItems : []} styles={{ root: { padding: 0, background: isEditting ? "transparent" : void 0 } }} />
+				<CommandBar items={titleItem} farItems={farItems} styles={{ root: { padding: 0, background: isEditting ? "transparent" : void 0 } }} />
 			</div>
+		</Stack.Item>
+		<Stack.Item grow={1}>
 			<Stack verticalFill className={style.body}>
 				{props.children}
 			</Stack>
-		</div>
-	</>;
+		</Stack.Item>
+	</Stack>;
 
 	function renderTitle() {
 		return <Stack verticalFill verticalAlign="center" className={style.headerText}>
-			<Text variant="large">{props.metaProps?.name ?? 'Untitled'}</Text>
+			<Text variant="large">{props.metaProps?.name ?? props.metaProps?.definition?.title ?? 'Untitled'}</Text>
 		</Stack>
 	}
 
@@ -64,10 +76,11 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 			tile: {
 				border: `solid 1px ${theme.semanticColors.bodyFrameDivider}`,
 				background: theme.semanticColors.bodyFrameBackground,
-				borderRadius: theme.effects.roundedCorner2,
+				borderRadius: theme.effects.roundedCorner4,
 				boxShadow: theme.effects.elevation4,
 				height: "100%",
 				opacity: dragProps.isDragging ? 0.5 : 1,
+				overflow: "hidden",
 			},
 			header: {
 				boxSizing: "border-box",
@@ -79,13 +92,14 @@ export function DashboardTile(props: PropsWithChildren<DashboardTileCoreProps>):
 				backgroundSize: `5px 3px`,
 				backgroundPosition: `center center`,
 				backgroundRepeat: "space",
+				overflow: "hidden",
 			},
 			headerText: {
 				marginLeft: theme.spacing.m,
 			},
 			body: {
 				boxSizing: "border-box",
-				padding: theme.spacing.s1,
+				padding: theme.spacing.m,
 			}
 		});
 	}
