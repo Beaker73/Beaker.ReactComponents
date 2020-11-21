@@ -1,0 +1,31 @@
+{
+    "package": {
+        "dependencies": {
+            "@fluentui/react": "8.0.0-beta.18",
+            "@uifabric/variants": "^7.2.31",
+            "easy-peasy": "^4.0.1",
+            "hookrouter": "^1.2.3",
+            "react": "^17.0.1",
+            "react-dom": "^17.0.1"
+        },
+        "devDependencies": {
+            "@testing-library/jest-dom": "^5.11.6",
+            "@testing-library/react": "^11.2.1",
+            "@testing-library/user-event": "^12.2.2",
+            "@types/hookrouter": "^2.2.4",
+            "@types/jest": "^26.0.15",
+            "@types/node": "^12.19.6",
+            "@types/react": "^16.14.0",
+            "@types/react-dom": "^16.9.9",
+            "@types/webpack-env": "^1.15.3",
+            "react-scripts": "4.0.0",
+            "typescript": "^4.1.2"
+        },
+        "eslintConfig": {
+            "extends": [
+                "react-app",
+                "react-app/jest"
+            ]
+        }
+    }
+}

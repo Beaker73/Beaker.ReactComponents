@@ -1,0 +1,28 @@
+{
+    "name": "cra-template-beaker",
+    "version": "1.0.0",
+    "keywords": [
+        "react",
+        "create-react-app",
+        "template",
+        "typescript",
+        "fluentui",
+        "hookrouter",
+        "easy-peasy",
+        "beaker"
+    ],
+    "description": "The Beaker template. Includes @fluentui/react, hookrouter, easy-pease and a default shell.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Beaker73/Beaker.ReactComponents.git",
+        "directory": "packages/cra-template-beaker"
+    },
+    "license": "MIT",
+    "engines": {
+        "node": ">=10"
+    },
+    "files": [
+        "template",
+        "template.json"
+    ]
+}
